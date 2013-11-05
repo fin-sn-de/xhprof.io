@@ -14,7 +14,7 @@ class DataPersistancePerfEvent extends Athletic\AthleticEvent {
     public function classSetUp()
     {
         $this->testProfile = unserialize(file_get_contents(dirname(__FILE__) .'/test.profile'));
-        $this->pdo = new PDO('mysql:dbname=xhprof;host=127.0.0.1', 'root', '');
+        $this->pdo = new PDO('mysql:dbname=xhprof;host=localhost', 'root', '');
     }
 
     /**
