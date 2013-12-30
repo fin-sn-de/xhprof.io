@@ -1,7 +1,6 @@
 <?php
 namespace ay\xhprof;
 
-use ay\isAjax;
 
 ob_start();
 
@@ -14,7 +13,8 @@ $template			= array
     'title'			=> NULL
 );
 
-$templates			  = array('requests', 'request', 'uris', 'hosts', 'function', 'api');
+$templates			  = array('requests', 'request', 'uris', 'hosts', 'function', 'api', 'treemap');
+$undecoratedtemplates = array('api', 'treemap');
 
 if(empty($_GET['xhprof']['template'])) {
     $_GET['xhprof']['template']	= 'hosts';
@@ -91,7 +91,7 @@ if(empty($_GET['xhprof']['query'])) {
     }
 }
 
-if (!\ay\isAjax()) {
+if (!in_array($template['file'], $undecoratedtemplates)) {
     $xhprof_data_obj	= new Data($config['pdo']);
     
     // allow the browser to cache pages.

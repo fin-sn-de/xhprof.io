@@ -11,11 +11,9 @@ class callgraph
     }
     
     /**
-     * @param	array	$callstack	The callstack must have UIDs.
-     * @param	boolean	$output	TRUE will output the content to the stdout and set the Content-Type to text/plain
-     * @param	boolean	$debug	TRUE will output a less complicated DOT script.
-     * 
-     * @return resource
+     * param	array	$callstack	The callstack must have UIDs.
+     * param	boolean	$output	TRUE will output the content to the stdout and set the Content-Type to text/plain
+     * param	boolean	$debug	TRUE will output a less complicated DOT script.
      */
     public function dot($callstack, $output = FALSE, $debug = FALSE)
     {
@@ -57,7 +55,7 @@ class callgraph
             }
 
             if($debug) {
-                $players[$callee_uid]	= "\t\"" . $callee_uid . '"[shape=square, label="' . $e['callee'] . '"];';
+                $players[$callee_uid]	= "\t" . $callee_uid . '[shape=square, label="' . $e['callee'] . '"];';
             } else {
                 $ct	= '';
 
@@ -120,8 +118,7 @@ class callgraph
             implode(PHP_EOL, $players) . PHP_EOL . PHP_EOL .
             implode(PHP_EOL, $calls);
 
-        $dot		= "digraph\r{\r{$dot}}";
-        
+        $dot		= "digraph\r{\r{$dot}\r}";
 
         if(!$output) {
             return $dot;
