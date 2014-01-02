@@ -13,8 +13,8 @@ $template			= array
     'title'			=> NULL
 );
 
-$templates			  = array('requests', 'request', 'uris', 'hosts', 'function', 'api', 'treemap');
-$undecoratedtemplates = array('api', 'treemap');
+$templates			  = array('requests', 'request', 'uris', 'hosts', 'function', 'api', 'treemap', 'partition_layout');
+$undecoratedtemplates = array('api', 'treemap', 'partition_layout');
 
 if(empty($_GET['xhprof']['template'])) {
     $_GET['xhprof']['template']	= 'hosts';

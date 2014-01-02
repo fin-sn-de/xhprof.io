@@ -42,19 +42,21 @@ switch ($_GET['xhprof']['query']['target']) {
             return $a['raw'];
         };        
         
+        $requestId = (int) $_GET['xhprof']['query']['request_id'];
+        
         $xhprof_data_obj	= new Data($config['pdo']);
-        $request = $xhprof_data_obj->get($_GET['xhprof']['query']['request_id']);
+        $request = $xhprof_data_obj->get($requestId);
         $xhprof_obj = new Model($request);
         $aggregated_stack = $xhprof_obj->getAggregatedStack();
         
         $treeData = array();
-        $treeData['name'] = 'myrequest';
+        $treeData['name'] = 'Request #'. $requestId;
         $treeData['children'] = array();
         
         $classData = array();
         foreach($aggregated_stack as $i => $a)
         {
-            $class = '';
+            $class = 'native';
             if(($pos = strpos($a['callee'], '::')) !== false) {
                 $class = substr($a['callee'], 0, $pos);
             }
