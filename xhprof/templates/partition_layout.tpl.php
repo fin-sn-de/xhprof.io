@@ -9,7 +9,7 @@
 .chart {
   display: block;
   margin: auto;
-  margin-top: 60px;
+  margin-top: 20px;
   font-size: 11px;
 }
 
@@ -62,7 +62,7 @@ function pmu(d) {
 }
 
 var w = Math.max(1200, $( document ).width() - 80),
-h = Math.max(600, $( document ).height() - 100),
+h = Math.max(600, $( document ).height() - 60),
 x = d3.scale.linear().range([0, w]),
 y = d3.scale.linear().range([0, h]);
 
