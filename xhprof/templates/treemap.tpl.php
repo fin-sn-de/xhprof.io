@@ -51,8 +51,8 @@ function pmu(d) {
   return d.pmu;
 }
 	
-var w = $( document ).width() - 80,
-    h = $( document ).height() - 100,
+var w = Math.max(1200, $( document ).width() - 80),
+    h = Math.max(600, $( document ).height() - 100),
     x = d3.scale.linear().range([0, w]),
     y = d3.scale.linear().range([0, h]),
     color = d3.scale.category20c(),
@@ -99,7 +99,11 @@ d3.json("?xhprof[template]=api&xhprof[query][target]=treemap&xhprof[query][reque
       .attr("dy", ".35em")
       .attr("text-anchor", "middle")
       .text(function(d) { return d.name; })
-      .style("opacity", function(d) { d.w = this.getComputedTextLength(); return d.dx > d.w ? 1 : 0; });
+      .style("opacity", function(d) { 
+          if (d.dy < 1) return 0; 
+          d.w = this.getComputedTextLength(); 
+          return d.dx > d.w ? 1 : 0; 
+      });
 
   d3.select(window).on("click", function() { zoom(root); });
 
