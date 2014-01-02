@@ -26,7 +26,10 @@ if(!$aggregated_family) {
 $contextCallgraph = '';
 if(!empty($aggregated_family['children'])) {
     $root = $aggregated_family['callee']['callee_id'];
-    $contextCallgraph = ' <a href="?xhprof[callgraph]=1&xhprof[template]=request&xhprof[query][request_id]='. $request['id'] .'&xhprof[callgraph][root]='.$root.'" target="_blank">Drill-Down Callgraph</a>';
+    $contextCallgraph = '';
+    $contextCallgraph .= ' <a href="?xhprof[callgraph]=1&xhprof[template]=request&xhprof[query][request_id]='. $request['id'] .'&xhprof[callgraph][root]='.$root.'" target="_blank" style="float: right">Callgraph</a>';
+    $contextCallgraph .= ' <a href="?xhprof[callgraph]=1&xhprof[template]=treemap&xhprof[query][request_id]='. $request['id'] .'&xhprof[callgraph][root]='.$root.'" target="_blank" style="float: right">Treemap</a>';
+    $contextCallgraph .= ' <a href="?xhprof[callgraph]=1&xhprof[template]=partition_layout&xhprof[query][request_id]='. $request['id'] .'&xhprof[callgraph][root]='.$root.'" target="_blank" style="float: right">Partioned</a>';
 }
 
 $table_row			= function ($e, $moreHtml = '') use ($request) {
