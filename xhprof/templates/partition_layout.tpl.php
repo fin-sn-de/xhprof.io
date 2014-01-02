@@ -67,21 +67,34 @@ x = d3.scale.linear().range([0, w]),
 y = d3.scale.linear().range([0, h]);
 
 var vis = d3.select("#body").append("div")
-.attr("class", "chart")
-.style("width", w + "px")
-.style("height", h + "px")
-.append("svg:svg")
-.attr("width", w)
-.attr("height", h);
+    .attr("class", "chart")
+    .style("width", w + "px")
+    .style("height", h + "px")
+    .append("svg:svg")
+    .attr("width", w)
+    .attr("height", h);
 
 var partition = d3.layout.partition().value(ct);
 
 d3.json("?xhprof[template]=api&xhprof[query][target]=treemap&xhprof[query][request_id]=<?php echo $_GET['xhprof']['query']['request_id']; ?>", function(root) {
     var g = vis.selectAll("g")
       .data(partition.nodes(root))
-    .enter().append("svg:g")
+      .enter().append("svg:g")
       .attr("transform", function(d) { return "translate(" + x(d.y) + "," + y(d.x) + ")"; })
-      .on("click", click);
+      .on("click", click)
+      .on("mouseover", function(d) {
+console.log(d);
+          var txt = focus.select("text");
+             txt.append("p").text(d.ct);
+             txt.append("p").text(d.wt);
+             txt.append("p").text(d.cpu);
+             txt.append("p").text(d.mu);
+             txt.append("p").text(d.pmu);
+             
+             focus.style("display", null); 
+       })
+      .on("mouseout", function(d) { focus.style("display", "none"); });
+      
     
     var kx = w / root.dx,
       ky = h / 1;
@@ -96,6 +109,22 @@ d3.json("?xhprof[template]=api&xhprof[query][target]=treemap&xhprof[query][reque
       .attr("dy", ".35em")
       .style("opacity", function(d) { return d.dx * ky > 12 ? 1 : 0; })
       .text(function(d) { return d.name; })
+      
+	// add overlay
+	var focus = vis.append("g")
+    	.attr("class", "focus");
+    	//.style("display", "none");
+
+	focus.append("text")
+    	.attr("x", 100)
+	    .attr("dy", "1em");
+    
+	vis.append("rect")
+	    .attr("class", "overlay")
+	    .attr("width", 200)
+	    .attr("height", 200);
+    // /overlay
+      
     
     d3.select("select").on("change", function() {
         var callback;

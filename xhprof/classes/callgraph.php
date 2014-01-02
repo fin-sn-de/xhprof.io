@@ -32,22 +32,32 @@ class callgraph
 
         $group_colors	= array('#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf');
         
+        // XXX to be refactored, see #26
         $graphRoot = null;
         if (!empty($_GET['xhprof']['callgraph']['root'])) {
             $graphRoot = $_GET['xhprof']['callgraph']['root'];
         }
-        $output = false;
+        
         foreach($callstack as $e) {
+            $callee_uid	= $e['uid'] . '_' . $e['callee_id'];
+            
+            // XXX to be refactored, see #26
             if ($graphRoot) {
-                if (preg_match('@'. '_'.  $graphRoot .'(_|$)@', $e['uid']) !== 1) {
+                if (preg_match('@'. '_'.  $graphRoot .'(_|$)@', $callee_uid) !== 1) {
                     continue;
                 }
+                
+                // add only a "calls-edge" for all childs of graphRoot
+                // until #26 is fixed, there is no other way :/
+                if($e['caller'] && preg_match('@'. '_'.  $graphRoot .'(_|$)@', $e['uid']) === 1) {
+                    $calls[]	= "\t\"" . $e['uid'] . '" -> "' . $callee_uid . '";';
+                }
             }
-            
-            $callee_uid	= $e['uid'] . '_' . $e['callee_id'];
-
-            if($e['caller']) {
-                $calls[]	= "\t\"" . $e['uid'] . '" -> "' . $callee_uid . '";';
+            else
+            {
+                if($e['caller']) {
+                    $calls[]	= "\t\"" . $e['uid'] . '" -> "' . $callee_uid . '";';
+                }
             }
 
             if(isset($players[$callee_uid])) {
@@ -113,7 +123,7 @@ class callgraph
                 >];';
             }
         }
-
+        
         $dot		=
             implode(PHP_EOL, $players) . PHP_EOL . PHP_EOL .
             implode(PHP_EOL, $calls);
