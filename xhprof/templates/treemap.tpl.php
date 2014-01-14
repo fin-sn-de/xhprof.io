@@ -100,7 +100,7 @@ d3.json("?xhprof[template]=api&xhprof[query][target]=treemap&xhprof[query][reque
       .attr("text-anchor", "middle")
       .text(function(d) { return d.name; })
       .style("opacity", function(d) { 
-          if (d.dy < 1) return 0; 
+          if (d.dy < 3) return 0; 
           d.w = this.getComputedTextLength(); 
           return d.dx > d.w ? 1 : 0; 
       });
