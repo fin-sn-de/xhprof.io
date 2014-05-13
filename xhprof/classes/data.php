@@ -128,39 +128,61 @@ class data
     }
 
     /**
+     * Get the currently running script info.
+     *
+     * @return array
+     * @throws DataException
+     */
+    public function getScriptInfo()
+    {
+        if (function_exists('xhprof_script_info'))  {
+            $info = xhprof_script_info();
+        } else if (isset($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'])) {
+            $info = array (
+                'host' => $_SERVER['HTTP_HOST'],
+                'uri' => $_SERVER['REQUEST_URI'],
+                'method' => $_SERVER['REQUEST_METHOD'],
+                'https' => empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off' ? 0 : 1,
+            );
+        }
+        if(!isset($info['host'], $info['uri'], $info['method'], $info['https'])) {
+            throw new DataException('XHProf.io cannot function in a environment that does not define host, uri, method, https.');
+        }
+        return $info;
+    }
+
+    /**
      * @param	array	$xhprof_data	The raw XHProf data.
      */
     public function save(array $xhprof_data)
     {
-        if(!isset($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'])) {
-            throw new DataException('XHProf.io cannot function in a server environment that does not define REQUEST_METHOD, HTTP_HOST or REQUEST_URI.');
-        }
+        $scriptInfo = $this->getScriptInfo();
 
         $query = sprintf("
               SELECT
                 (SELECT `id` FROM `request_methods` WHERE `method` = %s LIMIT 1) as 'method_id',
                 (SELECT `id` FROM `request_hosts` WHERE `host` = %s LIMIT 1) as 'host_id',
                 (SELECT `id` FROM `request_uris` WHERE `uri` = %s LIMIT 1) as 'uri_id';",
-                $this->db->quote($_SERVER['REQUEST_METHOD']),
-                $this->db->quote($_SERVER['HTTP_HOST']),
-                $this->db->quote($_SERVER['REQUEST_URI'])
+                $this->db->quote($scriptInfo['method']),
+                $this->db->quote($scriptInfo['host']),
+                $this->db->quote($scriptInfo['uri'])
         );
         $request = $this->db->query($query)->fetch(PDO::FETCH_ASSOC);
 
         if(!isset($request['method_id'])) {
-            $this->db->query(sprintf("INSERT INTO `request_methods` SET `method` = %s;", $this->db->quote($_SERVER['REQUEST_METHOD'])));
+            $this->db->query(sprintf("INSERT INTO `request_methods` SET `method` = %s;", $this->db->quote($scriptInfo['method'])));
 
             $request['method_id']	= $this->db->lastInsertId();
         }
 
         if(!isset($request['host_id'])) {
-            $this->db->query(sprintf("INSERT INTO `request_hosts` SET `host` = %s;", $this->db->quote($_SERVER['HTTP_HOST'])));
+            $this->db->query(sprintf("INSERT INTO `request_hosts` SET `host` = %s;", $this->db->quote($scriptInfo['host'])));
 
             $request['host_id']		= $this->db->lastInsertId();
         }
 
         if(!isset($request['uri_id'])) {
-            $this->db->query(sprintf("INSERT INTO `request_uris` SET `uri` = %s;", $this->db->quote($_SERVER['REQUEST_URI'])));
+            $this->db->query(sprintf("INSERT INTO `request_uris` SET `uri` = %s;", $this->db->quote($scriptInfo['uri'])));
 
             $request['uri_id']		= $this->db->lastInsertId();
         }
@@ -171,7 +193,7 @@ class data
                 $request['host_id'],
                 $request['uri_id'],
                 $request['method_id'],
-                empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off' ? 0 : 1
+                $scriptInfo['https']
             )
         );
 
