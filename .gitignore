@@ -2,3 +2,4 @@ xhprof/includes/config.inc.php
 *.custom.php
 composer.lock
 /vendor/
+/nbproject/private/
