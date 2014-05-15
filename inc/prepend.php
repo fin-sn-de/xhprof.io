@@ -7,8 +7,15 @@ if (xhprof_init()) {
 }
 
 
+/**
+ * Init xhprof
+ * 
+ * @global array $argv cli args
+ * @return boolean
+ */
 function xhprof_init()
 {
+    global $argv;
     if (!extension_loaded('xhprof')) {
         return false;
     }
