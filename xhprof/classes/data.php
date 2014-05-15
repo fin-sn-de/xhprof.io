@@ -135,6 +135,7 @@ class data
      */
     public function getScriptInfo()
     {
+        $info = array();
         if (function_exists('xhprof_script_info'))  {
             $info = xhprof_script_info();
         } else if (isset($_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD'])) {
@@ -145,6 +146,9 @@ class data
                 'https' => empty($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == 'off' ? 0 : 1,
             );
         }
+        // apply defaults
+        $info += array('method' => 'cli', 'https' => 0);
+
         if(!isset($info['host'], $info['uri'], $info['method'], $info['https'])) {
             throw new DataException('XHProf.io cannot function in a environment that does not define host, uri, method, https.');
         }
