@@ -146,6 +146,7 @@ class data
             );
         }
         if(!isset($info['host'], $info['uri'], $info['method'], $info['https'])) {
+            var_dump(TEST);
             throw new DataException('XHProf.io cannot function in a environment that does not define host, uri, method, https.');
         }
         return $info;
@@ -287,6 +288,13 @@ class data
 
     private function insertCall(array $call, $requestInsertId = false)
     {
+
+        if (isset($call['caller_id'])) {
+          $call['caller_id'] = intval($call['caller_id']);
+        } else {
+          $call['caller_id'] = 0;
+        }
+
         $qry = "INSERT INTO `calls` SET ";
 
         foreach($call as $colName => $val) {
