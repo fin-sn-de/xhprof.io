@@ -146,7 +146,6 @@ class data
             );
         }
         if(!isset($info['host'], $info['uri'], $info['method'], $info['https'])) {
-            var_dump(TEST);
             throw new DataException('XHProf.io cannot function in a environment that does not define host, uri, method, https.');
         }
         return $info;
