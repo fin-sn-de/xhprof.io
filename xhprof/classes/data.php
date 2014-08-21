@@ -2,7 +2,10 @@
 
 namespace ay\xhprof;
 
+use Exception;
 use PDO;
+use PDOException;
+use PDOStatement;
 
 class data
 {
@@ -193,11 +196,12 @@ class data
 
         $this->db->query(
             sprintf(
-                "INSERT INTO `requests` SET `request_host_id` = %d, `request_uri_id` = %d, `request_method_id` = %d, `https` = %d;",
+                "INSERT INTO `requests` SET `request_host_id` = %d, `request_uri_id` = %d, `request_method_id` = %d, `https` = %d, `request_timestamp` = '%s';",
                 $request['host_id'],
                 $request['uri_id'],
                 $request['method_id'],
-                $scriptInfo['https']
+                $scriptInfo['https'],
+                date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME'])
             )
         );
 
@@ -325,10 +329,26 @@ class data
         $this->fetchPlayerStmt->closeCursor();
 
         if(!$playerId) {
-            $this->insertPlayerStmt->execute(array('name' => $name));
-            $playerId = $this->db->lastInsertId();
-            $this->insertPlayerStmt->closeCursor();
+            try {
+                $this->insertPlayerStmt->execute(array('name' => $name));
+                $playerId = $this->db->lastInsertId();
+                $this->insertPlayerStmt->closeCursor();
+            } catch (Exception $exception) {
+                if ($exception instanceof PDOException) {
+                    // 23000 = duplicated key error = skip entry
+                    if ($exception->getCode() == 23000) {
+                        $this->fetchPlayerStmt->execute(array('name' => $name));
+                        $playerId = $this->fetchPlayerStmt->fetch(PDO::FETCH_COLUMN);
+                        $this->fetchPlayerStmt->closeCursor();
+                    }
+                }
+                if (!$playerId) {
+                    throw new Exception(sprintf('Could not generate player id for "%s"', $name), 0, $exception);
+                }
+            }
         }
+
+
 
         $playerIdCache[$name] = $playerId;
         return $playerIdCache[$name];
@@ -568,4 +588,4 @@ class data
     }
 }
 
-class DataException extends \Exception {}
+class DataException extends Exception{}
